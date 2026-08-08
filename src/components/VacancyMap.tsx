@@ -37,12 +37,7 @@ export default function VacancyMap({
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
 
-  const [mapMode, setMapMode] = useState<MapMode>(appTheme);
-
-  // Sync map mode with app theme on theme changes
-  useEffect(() => {
-    setMapMode(appTheme);
-  }, [appTheme]);
+  const [mapMode, setMapMode] = useState<MapMode>("streets");
 
   // Initialize Map
   useEffect(() => {
@@ -188,24 +183,24 @@ export default function VacancyMap({
       </div>
 
       {/* Floating Map Mode Selector */}
-      <div className="absolute top-14 right-4 z-[1000] flex rounded-lg border border-primary/40 bg-slate-950/95 backdrop-blur-xl p-1 shadow-2xl">
-        {(["dark", "light", "satellite", "streets"] as MapMode[]).map((mode) => (
+      <div className="absolute top-16 right-5 z-[1000] flex gap-1 rounded-xl border-2 border-primary/50 bg-slate-950/95 backdrop-blur-2xl p-1.5 shadow-2xl">
+        {(["streets", "dark", "satellite", "light"] as MapMode[]).map((mode) => (
           <button
             key={mode}
             onClick={() => setMapMode(mode)}
-            className={`rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+            className={`rounded-lg px-4 py-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 ${
               mapMode === mode
-                ? "bg-primary text-primary-foreground font-extrabold shadow-md scale-105"
-                : "text-slate-300 hover:text-white hover:bg-slate-800/80"
+                ? "bg-primary text-primary-foreground font-black shadow-lg scale-105 ring-2 ring-primary/40"
+                : "text-slate-200 hover:text-white hover:bg-slate-800/80"
             }`}
           >
-            {mode === "satellite" ? "Sat" : mode}
+            {mode === "satellite" ? "🛰️ Satellite" : mode === "dark" ? "🌙 Dark" : mode === "light" ? "☀️ Light" : "🗺️ Streets"}
           </button>
         ))}
       </div>
 
       {/* Map element */}
-      <div ref={mapContainer} className="h-[320px] w-full bg-surface-2" />
+      <div ref={mapContainer} className="h-[640px] lg:h-[720px] w-full bg-surface-2 rounded-b-xl overflow-hidden shadow-inner" />
     </div>
   );
 }
