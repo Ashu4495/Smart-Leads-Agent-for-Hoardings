@@ -276,7 +276,10 @@ if DIST_DIR.exists():
         target_file = DIST_DIR / full_path
         if target_file.exists() and target_file.is_file():
             return FileResponse(target_file)
-        return FileResponse(DIST_DIR / "index.html")
+        return FileResponse(
+            DIST_DIR / "index.html",
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+        )
 
 if __name__ == "__main__":
     import uvicorn
