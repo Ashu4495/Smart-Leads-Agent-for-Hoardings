@@ -75,7 +75,7 @@ The pitch engine (`backend/pitch_generator.py`) generates tailored pitch emails 
 
 ## ⚙️ Environment Configuration (`.env`)
 
-Configure [.env](file:///c:/Users/Ashu/Downloads/React%20Frontpage/.env) in the project root:
+Configure `.env` in the project root:
 
 ```env
 # OpenRouter LLM Configuration
@@ -83,8 +83,8 @@ OPENROUTER_API_KEY="your_openrouter_api_key_here"
 OPENROUTER_MODEL="openrouter/auto"
 
 # Map Keys
-VITE_GOOGLE_MAPS_API_KEY="AIzaSyBmvJph4LmrbtW7skeczzpBIyb9WWzFKo4"
-VITE_GOOGLE_MAPS_TRACKING_ID="76b4ba5d4b9b8e06c050c23422a7c878"
+VITE_GOOGLE_MAPS_API_KEY="your_google_maps_api_key_here"
+VITE_GOOGLE_MAPS_TRACKING_ID="your_google_maps_tracking_id_here"
 ```
 
 ---
