@@ -77,12 +77,16 @@ function Stat({
   sub: string;
 }) {
   return (
-    <div className="panel p-4 hover-scale cursor-default transition-all duration-300">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Icon className="size-4" />
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em]">{label}</span>
+    <div className="panel p-4.5 hover-scale cursor-default transition-all duration-300 hover:border-primary/40 hover:shadow-lg">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5 text-muted-foreground">
+          <div className="rounded-lg bg-primary/10 p-2 text-primary border border-primary/20">
+            <Icon className="size-4.5" />
+          </div>
+          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground">{label}</span>
+        </div>
       </div>
-      <div className="mt-3 font-mono text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="mt-3.5 font-mono text-3xl font-bold tabular-nums tracking-tight">{value}</div>
       <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
     </div>
   );
@@ -104,21 +108,29 @@ function LeadCard({
   hasNotes: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-2/60 p-4 hover-scale hover:shadow-lg transition-all duration-300">
+    <div className="rounded-xl border border-border/80 bg-surface/80 backdrop-blur-md p-4.5 hover-scale hover:shadow-2xl hover:border-primary/50 transition-all duration-300">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded bg-secondary px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-              #{rank}
+            <span
+              className={`rounded-md px-2 py-0.5 font-mono text-[11px] font-extrabold tracking-wide uppercase ${
+                rank === 1
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 glow-amber"
+                  : rank === 2
+                    ? "bg-slate-400/20 text-slate-200 border border-slate-400/40"
+                    : "bg-orange-500/20 text-orange-300 border border-orange-500/40"
+              }`}
+            >
+              {rank === 1 ? "🥇 #1 RANK" : rank === 2 ? "🥈 #2 RANK" : "🥉 #3 RANK"}
             </span>
-            <span className="truncate font-semibold">{lead.customer.name}</span>
+            <span className="truncate font-bold text-base text-foreground">{lead.customer.name}</span>
             {lead.isIncumbent && (
-              <span className="rounded bg-accent/15 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+              <span className="rounded bg-accent/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent border border-accent/30">
                 INCUMBENT
               </span>
             )}
             {lead.coldRelationship && (
-              <span className="inline-flex items-center gap-1 rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
+              <span className="inline-flex items-center gap-1 rounded bg-destructive/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive border border-destructive/30">
                 <Snowflake className="size-3" /> COLD
               </span>
             )}
