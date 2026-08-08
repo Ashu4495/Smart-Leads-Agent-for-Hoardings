@@ -99,8 +99,6 @@ Built with **React 19 + Vite + TypeScript**.
 **Frontend**
 - React 19, Vite 8, TypeScript
 - Leaflet.js (interactive maps)
-- Zustand (local state & persistence)
-- Lucide Icons
 
 **Backend**
 - Python 3.11, FastAPI, Uvicorn
