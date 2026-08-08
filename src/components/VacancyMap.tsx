@@ -7,16 +7,16 @@ import { fmtDate, inr } from "@/lib/leads-api";
 type MapMode = "dark" | "light" | "satellite" | "streets";
 
 const TILE_URLS: Record<MapMode, string> = {
-  dark: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
   light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
   satellite: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   streets: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 };
 
 function toneFor(days: number) {
-  if (days <= 30) return "#ef4444";
+  if (days <= 30) return "#f43f5e";
   if (days <= 60) return "#f59e0b";
-  return "#3b82f6";
+  return "#94a3b8";
 }
 
 export default function VacancyMap({
@@ -205,7 +205,7 @@ export default function VacancyMap({
       </div>
 
       {/* Map element */}
-      <div ref={mapContainer} className="h-[560px] lg:h-[620px] w-full bg-surface-2 rounded-b-xl overflow-hidden shadow-inner" />
+      <div ref={mapContainer} className="h-[320px] w-full bg-surface-2" />
     </div>
   );
 }

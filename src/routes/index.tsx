@@ -4,7 +4,6 @@ import { ClientOnly } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Activity,
-  AlertTriangle,
   ArrowRight,
   Building2,
   CalendarClock,
@@ -131,8 +130,8 @@ function LeadCard({
               </span>
             )}
             {lead.coldRelationship && (
-              <span className="inline-flex items-center gap-1 rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400 border border-amber-500/40">
-                <AlertTriangle className="size-3 text-amber-400" /> WARN
+              <span className="inline-flex items-center gap-1 rounded bg-destructive/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive border border-destructive/30">
+                <Snowflake className="size-3" /> COLD
               </span>
             )}
           </div>
