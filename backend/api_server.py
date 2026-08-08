@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 BACKEND_DIR = Path(__file__).resolve().parent
@@ -85,6 +87,8 @@ def _extract_area(location: str) -> str:
 
 @app.get("/")
 def root():
+    if DIST_DIR.exists() and (DIST_DIR / "index.html").exists():
+        return FileResponse(DIST_DIR / "index.html")
     return {
         "status": "ok",
         "service": "Smart Leads Agent Backend API",
@@ -257,6 +261,22 @@ def get_pitch(site_id: Optional[str] = Query(None), customer_id: Optional[str] =
         return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating pitch: {str(e)}")
+
+# Serve React Frontend Static Build if present in dist/
+DIST_DIR = ROOT / "dist"
+if DIST_DIR.exists():
+    assets_dir = DIST_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    @app.get("/{full_path:path}")
+    def serve_frontend(full_path: str):
+        if full_path.startswith("api"):
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        target_file = DIST_DIR / full_path
+        if target_file.exists() and target_file.is_file():
+            return FileResponse(target_file)
+        return FileResponse(DIST_DIR / "index.html")
 
 if __name__ == "__main__":
     import uvicorn
