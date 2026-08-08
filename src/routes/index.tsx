@@ -526,7 +526,7 @@ function Cockpit() {
               Smart Leads Agent
             </h1>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Hoarding vacancy cockpit · {hoardings.length} sites under management
+              Hoarding vacancy cockpit · <span className="font-semibold text-foreground">{vacancies.length}</span> sites under management
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -551,15 +551,15 @@ function Cockpit() {
                 className="w-64 rounded-md border border-input bg-background py-2 pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-ring transition-all"
               />
             </div>
-            <div className="flex rounded-md border border-input p-0.5 bg-background">
+            <div className="flex rounded-lg border border-primary/40 p-1 bg-surface-2 shadow-lg">
               {[30, 60, 90].map((d) => (
                 <button
                   key={d}
                   onClick={() => setWindowDays(d)}
-                  className={`rounded px-2.5 py-1.5 text-xs font-medium transition-all ${
+                  className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all duration-200 ${
                     windowDays === d
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-primary-foreground font-extrabold shadow-md scale-105"
+                      : "text-muted-foreground hover:text-foreground hover:bg-surface"
                   }`}
                 >
                   {d}d

@@ -170,33 +170,33 @@ export default function VacancyMap({
   return (
     <div className="panel slide-up relative overflow-hidden">
       {/* Header bar */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-surface/50 backdrop-blur-sm z-10 relative">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Site map · {vacancies.length} vacancies
+      <div className="flex flex-wrap items-center justify-between border-b border-border px-4 py-3 bg-surface/90 backdrop-blur-md z-20 relative">
+        <span className="text-xs font-bold uppercase tracking-[0.14em] text-foreground flex items-center gap-2">
+          📍 Site Map · <span className="text-primary font-mono">{vacancies.length}</span> Vacancies
         </span>
-        <span className="flex items-center gap-3 text-[10px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <i className="inline-block size-2 rounded-full bg-destructive" /> &le;30d
+        <span className="flex items-center gap-3.5 text-xs font-semibold text-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-2 py-0.5 border border-red-500/30 text-red-400">
+            <i className="inline-block size-2.5 rounded-full bg-red-500 animate-pulse" /> &le;30d
           </span>
-          <span className="inline-flex items-center gap-1">
-            <i className="inline-block size-2 rounded-full bg-warning" /> &le;60d
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 border border-amber-500/30 text-amber-400">
+            <i className="inline-block size-2.5 rounded-full bg-amber-500" /> &le;60d
           </span>
-          <span className="inline-flex items-center gap-1">
-            <i className="inline-block size-2 rounded-full bg-muted-foreground" /> 90d
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2 py-0.5 border border-blue-500/30 text-blue-400">
+            <i className="inline-block size-2.5 rounded-full bg-blue-500" /> 90d
           </span>
         </span>
       </div>
 
       {/* Floating Map Mode Selector */}
-      <div className="absolute top-14 right-4 z-400 flex rounded-md border border-border bg-surface/90 backdrop-blur-md p-0.5 shadow-md">
+      <div className="absolute top-14 right-4 z-[1000] flex rounded-lg border border-primary/40 bg-slate-950/95 backdrop-blur-xl p-1 shadow-2xl">
         {(["dark", "light", "satellite", "streets"] as MapMode[]).map((mode) => (
           <button
             key={mode}
             onClick={() => setMapMode(mode)}
-            className={`rounded px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-all ${
+            className={`rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
               mapMode === mode
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-primary text-primary-foreground font-extrabold shadow-md scale-105"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/80"
             }`}
           >
             {mode === "satellite" ? "Sat" : mode}
