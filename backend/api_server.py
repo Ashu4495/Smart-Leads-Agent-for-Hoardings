@@ -83,6 +83,19 @@ def _extract_area(location: str) -> str:
     tokens = location.split()
     return tokens[0] if tokens else location
 
+@app.get("/")
+def root():
+    return {
+        "status": "ok",
+        "service": "Smart Leads Agent Backend API",
+        "version": "1.0.0",
+        "endpoints": {
+            "health": "/api/health",
+            "vacancies": "/api/vacancies?window_days=90",
+            "pitch": "/api/pitch?site_id=HRD-100&customer_id=CUST-48"
+        }
+    }
+
 @app.get("/api/health")
 def health_check():
     try:
