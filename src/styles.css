@@ -74,33 +74,33 @@
 /* Dark Mode Overrides */
 .dark {
   color-scheme: dark;
-  --background: oklch(0.19 0.018 250);
-  --foreground: oklch(0.95 0.008 250);
-  --surface: oklch(0.23 0.02 250);
-  --surface-2: oklch(0.27 0.022 250);
-  --card: oklch(0.23 0.02 250);
-  --card-foreground: oklch(0.95 0.008 250);
-  --popover: oklch(0.23 0.02 250);
-  --popover-foreground: oklch(0.95 0.008 250);
-  --primary: oklch(0.8 0.17 88);
-  --primary-foreground: oklch(0.2 0.03 80);
-  --secondary: oklch(0.3 0.025 250);
-  --secondary-foreground: oklch(0.95 0.008 250);
-  --muted: oklch(0.28 0.02 250);
-  --muted-foreground: oklch(0.68 0.02 250);
-  --accent: oklch(0.72 0.14 195);
-  --accent-foreground: oklch(0.19 0.02 250);
-  --destructive: oklch(0.62 0.2 25);
-  --destructive-foreground: oklch(0.97 0.01 25);
-  --warning: oklch(0.78 0.16 65);
-  --warning-foreground: oklch(0.2 0.03 65);
-  --success: oklch(0.72 0.15 155);
-  --success-foreground: oklch(0.18 0.03 155);
-  --border: oklch(0.32 0.022 250);
-  --input: oklch(0.32 0.022 250);
-  --ring: oklch(0.8 0.17 88);
-  --bg-gradient-1: oklch(0.32 0.06 250 / 0.6);
-  --bg-gradient-2: oklch(0.3 0.07 88 / 0.25);
+  --background: oklch(0.14 0.025 250);
+  --foreground: oklch(0.97 0.008 250);
+  --surface: oklch(0.19 0.03 250);
+  --surface-2: oklch(0.24 0.035 250);
+  --card: oklch(0.19 0.03 250);
+  --card-foreground: oklch(0.97 0.008 250);
+  --popover: oklch(0.19 0.03 250);
+  --popover-foreground: oklch(0.97 0.008 250);
+  --primary: oklch(0.82 0.18 85);
+  --primary-foreground: oklch(0.15 0.03 80);
+  --secondary: oklch(0.28 0.03 250);
+  --secondary-foreground: oklch(0.97 0.008 250);
+  --muted: oklch(0.26 0.025 250);
+  --muted-foreground: oklch(0.78 0.02 250);
+  --accent: oklch(0.75 0.15 195);
+  --accent-foreground: oklch(0.15 0.02 250);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  --warning: oklch(0.8 0.18 65);
+  --warning-foreground: oklch(0.18 0.03 65);
+  --success: oklch(0.75 0.17 155);
+  --success-foreground: oklch(0.15 0.03 155);
+  --border: oklch(0.36 0.03 250);
+  --input: oklch(0.36 0.03 250);
+  --ring: oklch(0.82 0.18 85);
+  --bg-gradient-1: oklch(0.28 0.06 250 / 0.7);
+  --bg-gradient-2: oklch(0.26 0.07 88 / 0.3);
 }
 
 @layer base {
