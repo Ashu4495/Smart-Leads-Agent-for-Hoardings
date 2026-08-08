@@ -53,7 +53,7 @@ export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
     ? `${window.location.origin}/api`
-    : "http://127.0.0.1:8000/api");
+    : "http://127.0.0.1:8000/api/phase1");
 
 export function fmtDate(iso: string) {
   if (!iso) return "TBD";
@@ -77,10 +77,11 @@ export async function fetchVacanciesFromAPI(windowDays = 90): Promise<Vacancy[]>
     if (!res.ok) {
       throw new Error(`API response error: ${res.statusText}`);
     }
-    const data: Vacancy[] = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      cachedVacancies = data;
-      return data;
+    const data = await res.json();
+    if (data && data.vacancies && Array.isArray(data.vacancies) && data.vacancies.length > 0) {
+      const vacancies = transformPhase1Vacancies(data.vacancies);
+      cachedVacancies = vacancies;
+      return vacancies;
     }
   } catch (err) {
     console.warn("Backend API not reachable or returned error, using local fallback data:", err);
@@ -93,8 +94,9 @@ export async function fetchPitchFromAPI(
   customerId: string
 ): Promise<{ pitch_text: string; why_summary?: string; quoted_rate_inr?: number }> {
   try {
+    const pitchApiUrl = API_BASE_URL.replace('/phase1', '') + '/pitch';
     const res = await fetch(
-      `${API_BASE_URL}/pitch?site_id=${encodeURIComponent(siteId)}&customer_id=${encodeURIComponent(customerId)}&t=${Date.now()}`
+      `${pitchApiUrl}?site_id=${encodeURIComponent(siteId)}&customer_id=${encodeURIComponent(customerId)}&t=${Date.now()}`
     );
     if (res.ok) {
       const data = await res.json();
@@ -118,65 +120,151 @@ export function getVacancies(windowDays = 90): Vacancy[] {
 
 export const hoardings: Hoarding[] = [];
 
-// Fallback dataset generator if backend is temporarily offline
-function getVacanciesFallback(windowDays: number): Vacancy[] {
-  const TODAY = new Date("2026-08-08T00:00:00Z");
-  const fallbackSites = [
-    { id: "HRD-101", loc: "BKC Junction, Mumbai", area: "BKC", rate: 350000, traffic: 92, lat: 19.0667, lng: 72.8667 },
-    { id: "HRD-102", loc: "Powai Hiranandani Garden, Mumbai", area: "Powai", rate: 280000, traffic: 88, lat: 19.1176, lng: 72.9060 },
-    { id: "HRD-103", loc: "Andheri Metro Station Flyover, Mumbai", area: "Andheri", rate: 320000, traffic: 95, lat: 19.1197, lng: 72.8464 },
-    { id: "HRD-104", loc: "Goregaon WEH Highway, Mumbai", area: "Goregaon", rate: 260000, traffic: 82, lat: 19.1663, lng: 72.8526 },
-    { id: "HRD-105", loc: "Thane Majiwada Flyover, Thane", area: "Thane", rate: 210000, traffic: 79, lat: 19.2183, lng: 72.9781 },
-  ];
-
-  return fallbackSites.map((s, idx) => {
-    const freeFrom = new Date(TODAY.getTime() + (10 + idx * 12) * 86400000).toISOString();
+// Transform Phase 1 API response to frontend Vacancy format
+function transformPhase1Vacancies(phase1Vacancies: any[]): Vacancy[] {
+  return phase1Vacancies.map((v, idx) => {
+    const freeFrom = new Date(v.free_from_date).toISOString();
+    const location = v.location;
+    const coords = getCoordsForLocation(location, idx);
+    const area = extractArea(location);
+    
+    // Generate realistic leads based on site data
+    const leads = generateLeadsForSite(v.site_id, v.monthly_rate_inr, v.traffic_score);
+    
     return {
       hoarding: {
-        id: s.id,
-        location: s.loc,
-        area: s.area,
-        size: "40x20 ft",
-        trafficScore: s.traffic,
-        monthlyRate: s.rate,
-        lat: s.lat,
-        lng: s.lng,
+        id: v.site_id,
+        location: location,
+        area: area,
+        size: `${v.size_sqft} sqft`,
+        trafficScore: Math.round(v.traffic_score * 10),
+        monthlyRate: Math.round(v.monthly_rate_inr),
+        lat: coords[0],
+        lng: coords[1],
       },
       freeFrom,
-      daysUntilFree: 10 + idx * 12,
-      revenueAtRisk: s.rate,
+      daysUntilFree: v.days_until_free,
+      revenueAtRisk: Math.round(v.revenue_at_risk),
       lastBooking: {
-        id: `B-${s.id}`,
-        hoardingId: s.id,
-        customerId: "CUST-01",
-        start: TODAY.toISOString(),
+        id: `B-${v.site_id}`,
+        hoardingId: v.site_id,
+        customerId: leads[0]?.customer.id || "CUST-01",
+        start: new Date(Date.now() - 30 * 86400000).toISOString(),
         end: freeFrom,
-        value: s.rate,
+        value: Math.round(v.monthly_rate_inr),
       },
-      leads: [
-        {
-          customer: {
-            id: "CUST-01",
-            name: "Reliance Retail",
-            industry: "Retail",
-            budgetBand: "High",
-            relationshipScore: 90,
-            lastContactDays: 7,
-          },
-          score: 92,
-          reasons: [
-            "[Affinity] Reliance Retail has booked this corridor before.",
-            "[Industry Fit] Retail brands dominate high-traffic junction sites.",
-            "[Relationship] Strong relationship (9/10).",
-          ],
-          suggestedRate: s.rate,
-          isIncumbent: true,
-          churnRisk: 12,
-          coldRelationship: false,
-        },
-      ],
+      leads,
     };
   });
+}
+
+// Known coordinates for locations
+const LOCATION_COORDS: Record<string, [number, number]> = {
+  "BKC": [19.0667, 72.8667],
+  "POWAI": [19.1176, 72.9060],
+  "ANDHERI": [19.1197, 72.8464],
+  "GOREGAON": [19.1663, 72.8526],
+  "MALAD": [19.1860, 72.8485],
+  "KANDIVALI": [19.2070, 72.8543],
+  "BORIVALI": [19.2307, 72.8567],
+  "THANE": [19.2183, 72.9781],
+  "SION": [19.0400, 72.8600],
+  "WORLI": [19.0176, 72.8162],
+  "MUMBAI": [19.0760, 72.8777],
+  "PUNE": [18.5204, 73.8567],
+  "BANER": [18.5590, 73.7868],
+  "HINJEWADI": [18.5912, 73.7389],
+  "KOTHRUD": [18.5074, 73.8077],
+  "VIMAN NAGAR": [18.5679, 73.9143],
+};
+
+function getCoordsForLocation(location: string, idx: number): [number, number] {
+  const locUpper = location.toUpperCase();
+  for (const [key, coords] of Object.entries(LOCATION_COORDS)) {
+    if (locUpper.includes(key)) {
+      const lat = coords[0] + ((idx % 7) - 3) * 0.005;
+      const lng = coords[1] + (((idx * 3) % 7) - 3) * 0.005;
+      return [Number(lat.toFixed(5)), Number(lng.toFixed(5))];
+    }
+  }
+  return [
+    Number((19.0760 + ((idx % 10) - 5) * 0.008).toFixed(5)),
+    Number((72.8777 + (((idx * 3) % 10) - 5) * 0.008).toFixed(5))
+  ];
+}
+
+function extractArea(location: string): string {
+  const parts = location.split(",").map(p => p.trim());
+  if (parts.length > 1) return parts[parts.length - 1];
+  const tokens = location.split(" ");
+  return tokens[0] || location;
+}
+
+function generateLeadsForSite(siteId: string, monthlyRate: number, trafficScore: number): any[] {
+  // Mock lead data - in production this would come from the backend
+  const mockLeads = [
+    {
+      customer: {
+        id: "CUST-48",
+        name: "Hindustan Unilever Ltd",
+        industry: "FMCG",
+        budgetBand: "High",
+        relationshipScore: 90,
+        lastContactDays: 15,
+      },
+      score: 92,
+      reasons: [
+        `[Affinity] HUL has booked ${siteId} corridor before.`,
+        `[Industry Fit] FMCG brands dominate high-traffic flyover corridors.`,
+        `[Relationship] Strong relationship (9/10).`,
+      ],
+      suggestedRate: Math.round(monthlyRate * 1.0),
+      isIncumbent: false,
+      churnRisk: 12,
+      coldRelationship: false,
+    },
+    {
+      customer: {
+        id: "CUST-12",
+        name: "P&G India",
+        industry: "FMCG",
+        budgetBand: "High",
+        relationshipScore: 85,
+        lastContactDays: 22,
+      },
+      score: 87,
+      reasons: [
+        `[Industry Fit] FMCG brands align with high-traffic corridors.`,
+        `[Relationship] Good relationship (8.5/10).`,
+        `[Value Match] Budget aligns with site rate card.`,
+      ],
+      suggestedRate: Math.round(monthlyRate * 0.98),
+      isIncumbent: false,
+      churnRisk: 18,
+      coldRelationship: false,
+    },
+    {
+      customer: {
+        id: "CUST-33",
+        name: "ITC Limited",
+        industry: "FMCG",
+        budgetBand: "High",
+        relationshipScore: 78,
+        lastContactDays: 35,
+      },
+      score: 82,
+      reasons: [
+        `[Affinity] ITC has presence in nearby corridors.`,
+        `[Industry Fit] Strong FMCG portfolio for premium sites.`,
+        `[Value Match] Budget compatible with rate card.`,
+      ],
+      suggestedRate: Math.round(monthlyRate * 0.95),
+      isIncumbent: false,
+      churnRisk: 25,
+      coldRelationship: false,
+    },
+  ];
+  return mockLeads;
 }
 
 export function buildPitch(v: Vacancy, lead: Lead): string {

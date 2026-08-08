@@ -1,143 +1,209 @@
-# Smart Leads Agent — Hoarding Vacancy & OpenRouter AI Cockpit 🚀
+# Smart Leads Agent for Hoardings
 
-An executive, full-stack intelligence dashboard for Out-of-Home (OOH) media owners to detect upcoming hoarding vacancies, dynamically rank top-3 best-fit advertiser prospects using a 5-factor scoring engine, and generate personalized sales pitches powered by **OpenRouter AI** with rate card guardrails.
+> An AI-powered sales intelligence platform for Out-of-Home (OOH) media — detect upcoming billboard vacancies, rank the best-fit advertisers, and generate personalised pitch emails in seconds.
 
 ---
 
-## 🏗️ Master Project Architecture
+## What It Does
 
-The repository is organized into a clean, modular full-stack architecture operating off `data/Smart_Leads_Master.xlsx`:
+Out-of-Home media sales teams spend hours manually identifying which clients to call when a hoarding site is about to go vacant. This platform eliminates that guesswork.
+
+Give it your site data and customer list. It will:
+
+1. **Detect vacancies** — flags every hoarding whose lease expires within your chosen window (30 / 60 / 90 days).
+2. **Score & rank leads** — runs each potential advertiser through a 5-factor scoring model and surfaces the top 3 best-fit prospects per site.
+3. **Write the pitch** — calls OpenRouter AI to draft a tailored sales email with rate-card accuracy guaranteed.
+
+---
+
+## Project Structure
 
 ```
-smart-leads-agent (Workspace Root)
-├── backend/                     # Python FastAPI Backend Engine
-│   ├── api_server.py            # REST API endpoints server (http://127.0.0.1:8000/api)
-│   ├── lead_scoring_engine.py   # 5-factor lead scoring & customer profile builder
-│   ├── pitch_generator.py       # OpenRouter AI pitch generator & rate guardrails
-│   ├── requirements.txt         # Backend Python dependencies
-│   └── __init__.py              # Python package marker
+Smart-Leads-Agent-for-Hoardings/
 │
-├── data/                        # Centralized Master Dataset Directory
-│   └── Smart_Leads_Master.xlsx  # Master Excel dataset (Master_Site_Data & Phase2_Leads)
+├── backend/
+│   ├── api_server.py          # FastAPI REST server — serves all /api/* routes
+│   ├── lead_scoring_engine.py # 5-factor scoring engine & customer profiler
+│   ├── pitch_generator.py     # OpenRouter AI pitch generator + guardrail layer
+│   └── __init__.py
 │
-├── src/                         # React Frontend Application (Vite + TanStack Router)
-│   ├── main.tsx                 # React application entrypoint
-│   ├── routes/index.tsx         # Cockpit dashboard page & lead drawer modal
-│   ├── components/VacancyMap.tsx# Interactive Leaflet billboard map component (520px)
-│   ├── lib/leads-api.ts         # Frontend API integration layer connecting to backend
-│   ├── lib/lead-store.ts        # Zustand local storage store for saved drafts & notes
-│   ├── lib/utils.ts             # Tailwind class merging utility
-│   └── styles.css               # Design system, glassmorphism tokens, and animations
+├── data/
+│   └── Smart_Leads_Master.xlsx  # Master dataset (sites + leads, two sheets)
 │
-├── .env                         # Environment variables (OpenRouter API Key, Map keys)
-├── .env.example                 # Environment template for repository
-├── package.json                 # Project scripts & npm dependencies (smart-leads-agent)
-├── requirements.txt             # Root Python requirements file
-├── tsconfig.json                # TypeScript compiler & path alias configuration (@/* -> ./src/*)
-├── vite.config.ts               # Vite build configuration
-└── README.md                    # Detailed project documentation
+├── src/
+│   ├── main.tsx               # React app entry point
+│   ├── routes/index.tsx       # Main cockpit dashboard & lead detail drawer
+│   ├── components/
+│   │   └── VacancyMap.tsx     # Interactive Leaflet map with urgency markers
+│   └── lib/
+│       ├── leads-api.ts       # API client — auto-resolves dev vs production URL
+│       ├── lead-store.ts      # Zustand store for saved drafts & notes
+│       └── utils.ts           # Utility helpers
+│
+├── .env                       # Local environment secrets (not committed)
+├── .env.example               # Template — copy this to create your .env
+├── render.yaml                # Render.com full-stack deployment config
+├── vite.config.ts             # Vite build config
+├── package.json               # Node scripts & dependencies
+└── requirements.txt           # Python dependencies
 ```
 
 ---
 
-## 🧮 5-Factor Lead Scoring Engine
+## Lead Scoring Model
 
-The scoring engine (`backend/lead_scoring_engine.py`) processes 25 real sites and 45 Phase-2 leads from `data/Smart_Leads_Master.xlsx` and calculates a normalized 0–100 score for every prospect based on 5 weighted factors:
+Every prospect is scored 0–100 using five weighted factors:
 
-1. **Historical Affinity (30%)**: Past booking count at the specific site or surrounding corridor.
-2. **Industry Category Fit (25%)**: Category alignment with location type (e.g., FMCG brands on high-traffic flyover corridors like Kandivali Flyover WEB).
-3. **Relationship Score (20%)**: CRM relationship rating (1–10 scale).
-4. **Recency (15%)**: Days since last active campaign completion.
-5. **Value Match (10%)**: Customer budget compatibility vs site monthly card rate.
+| Factor | Weight | What It Measures |
+|---|---|---|
+| Historical Affinity | 30% | How many times the brand has booked at this site or nearby corridor |
+| Industry Fit | 25% | How well the brand's category matches the site's location type |
+| Relationship Score | 20% | CRM relationship rating (1–10) with the account |
+| Recency | 15% | Days elapsed since the brand's last active OOH campaign |
+| Value Match | 10% | Brand's typical budget vs the site's monthly card rate |
 
----
-
-## 🤖 OpenRouter AI Pitch Generator & Rate Guardrails
-
-The pitch engine (`backend/pitch_generator.py`) generates tailored pitch emails using the OpenRouter AI API (`openrouter/auto`) with key features:
-
-- **Why-Summary Narration**: Generates a one-line plain-English explanation detailing why the lead was selected and how the offer was customized.
-- **Rate Card Guardrail Verification**: Checks the generated text to ensure the quoted rate matches the site's card rate verbatim. If price drift is detected, a hard-substitute guardrail corrects the rate.
-- **5-Style Pitch Cycling**: Automatically cycles through 5 distinct pitch draft styles (Executive C-Level Proposal, Footfall Focus, Priority Access, Opportunity Alert, Competitive Advantage).
-- **Execution Metadata**: Returns real-time latency (`latency_ms`), model ID, and guardrail status pill.
+The top 3 prospects per site are surfaced in the dashboard with rank badges (Gold / Silver / Bronze).
 
 ---
 
-## 🎨 Frontend Dashboard Features
+## AI Pitch Generator
 
-- **Interactive Site Map**: Enlarged `520px` Leaflet map displaying billboard locations with urgency-colored markers (`≤30d` red, `≤60d` yellow, `90d` gray) and tile style controls (Dark, Light, Satellite, Streets).
-- **25-Site Vacancy Pipeline**: Expanded scroll container (`720px`) for smooth navigation through all sites in the pipeline.
-- **Dynamic Search & Filtering**: Real-time filtering by site ID, location area, industry, or customer name across 30, 60, and 90-day vacancy windows.
-- **Rank Badging**: Color-coded badges for ranked prospects (#1 Gold, #2 Silver, #3 Bronze).
-- **Local Persistence**: Save pitch drafts and internal client notes locally using Zustand.
+The pitch engine (`backend/pitch_generator.py`) connects to **OpenRouter AI** and produces a ready-to-send sales email for any site + customer pair.
+
+**Key behaviours:**
+
+- **Rate guardrail** — after generation, a regex check verifies the quoted price matches the rate card exactly. If price drift is detected, the correct rate is substituted automatically before the pitch is returned.
+- **Why-summary** — alongside the pitch, the engine returns a one-line plain-English explanation of why this lead was selected.
+- **5 pitch styles** — the engine cycles through five distinct tones (Executive proposal, Footfall focus, Priority access, Opportunity alert, Competitive advantage) to keep outreach fresh.
+- **Latency metadata** — every response includes generation time (`latency_ms`) and the model ID used.
 
 ---
 
-## ⚙️ Environment Configuration (`.env`)
+## Frontend Dashboard
 
-Configure `.env` in the project root:
+Built with **React 19 + Vite + TypeScript**.
+
+| Feature | Details |
+|---|---|
+| Vacancy Pipeline | Scrollable list of all vacant sites with urgency windows |
+| Interactive Map | Leaflet map with colour-coded urgency markers (red ≤ 30d, yellow ≤ 60d, grey = 90d). Default tile style: Streets |
+| Search & Filter | Filter by site ID, area, industry, or customer across 30 / 60 / 90-day windows |
+| Lead Drawer | Click any site to open a side drawer with ranked leads and AI pitch controls |
+| Rank Badges | #1 Gold, #2 Silver, #3 Bronze on every lead card |
+| Saved Drafts | Pitch drafts and internal notes persist locally via Zustand |
+
+---
+
+## Tech Stack
+
+**Frontend**
+- React 19, Vite 8, TypeScript
+- Leaflet.js (interactive maps)
+- Zustand (local state & persistence)
+- Lucide Icons
+
+**Backend**
+- Python 3.11, FastAPI, Uvicorn
+- Pandas + OpenPyXL (Excel data processing)
+- OpenRouter API (LLM integration)
+
+**Data**
+- `data/Smart_Leads_Master.xlsx` — two sheets: `Master_Site_Data` (25 sites) and `Phase2_Leads` (45 customers)
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+- Node.js v18+ and npm
+- Python 3.10+
+
+### Steps
+
+**1. Clone the repo**
+```bash
+git clone https://github.com/HarshR-gif/Smart-Leads-Agent-for-Hoardings.git
+cd Smart-Leads-Agent-for-Hoardings
+```
+
+**2. Set up environment variables**
+```bash
+cp .env.example .env
+# Open .env and add your OpenRouter API key
+```
+
+**3. Install Python dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**4. Install Node dependencies**
+```bash
+npm install
+```
+
+**5. Start the backend**
+```bash
+npm run backend
+# FastAPI server starts at http://127.0.0.1:8000
+```
+
+**6. Start the frontend**
+```bash
+npm run dev
+# React dev server starts at http://localhost:3000
+```
+
+Open `http://localhost:3000` — the dashboard connects to the backend automatically.
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the project root (use `.env.example` as a template):
 
 ```env
-# OpenRouter LLM Configuration
+# OpenRouter LLM
 OPENROUTER_API_KEY="your_openrouter_api_key_here"
 OPENROUTER_MODEL="openrouter/auto"
 
-# Map Keys
-VITE_GOOGLE_MAPS_API_KEY="your_google_maps_api_key_here"
-VITE_GOOGLE_MAPS_TRACKING_ID="your_google_maps_tracking_id_here"
+# Optional: override the API base URL for the frontend
+VITE_API_BASE_URL=""
 ```
 
 ---
 
-## 🚀 Getting Started
+## API Reference
 
-### Prerequisites
-- **Node.js** v18+ & **npm**
-- **Python** 3.10+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/health` | GET | Server health check + site count |
+| `/api/vacancies` | GET | All vacant sites with ranked leads (`?window_days=90`) |
+| `/api/pitch` | GET | Generate AI pitch (`?site_id=HRD-100&customer_id=CUST-48`) |
 
-### 1. Install Backend Dependencies
+**Example:**
 ```bash
-pip install -r backend/requirements.txt
-```
-
-### 2. Start Python FastAPI Server
-```bash
-npm run backend
-# Starts FastAPI server at http://127.0.0.1:8000
-```
-
-### 3. Start React Frontend Server
-```bash
-npm run dev
-# Starts React Vite dev server at http://localhost:3000
+curl "http://127.0.0.1:8000/api/pitch?site_id=HRD-100&customer_id=CUST-48"
 ```
 
 ---
 
-## 📡 REST API Reference
+## Deployment
 
-| Endpoint | Method | Description | Sample Output |
-| :--- | :--- | :--- | :--- |
-| `/api/health` | `GET` | Server health status & site counts | `{"status": "ok", "sites_count": 25}` |
-| `/api/vacancies` | `GET` | List vacant sites & top-3 ranked leads | `[{"hoarding": {...}, "leads": [...]}]` |
-| `/api/pitch` | `GET` | Generate AI pitch for site & customer | `{"pitch_text": "...", "why_summary": "...", "llm_mode": "openrouter"}` |
+The project is configured for a **single-service full-stack deployment** on Render.com using `render.yaml`.
 
-### Sample API Pitch Call
-```bash
-curl.exe "http://127.0.0.1:8000/api/pitch?site_id=HRD-100&customer_id=CUST-48"
-```
+The build process:
+1. Installs Node dependencies and builds the React app (`dist/`)
+2. Installs Python dependencies
+3. Starts the FastAPI server — which also serves the React build as static files
 
----
+When deployed, visiting the Render URL loads the full React cockpit UI. All `/api/*` requests are handled by the same FastAPI service on the same domain.
 
-## 🛠️ Tech Stack
-
-- **Frontend**: React 19, Vite 8, TypeScript, Tailwind CSS, Leaflet Maps, Zustand, Lucide Icons
-- **Backend**: Python 3.11, FastAPI, Uvicorn, Pandas, OpenPyXL, OpenRouter API
-- **Data Source**: `data/Smart_Leads_Master.xlsx`
+**Live deployment:** [https://smart-leads-agent-for-hoardings.onrender.com](https://smart-leads-agent-for-hoardings.onrender.com)
 
 ---
 
-## 🌐 GitHub Repository & Deployment
+## Repository
 
-- **GitHub Repo**: [https://github.com/HarshR-gif/Smart-Leads-Agent-for-Hoardings](https://github.com/HarshR-gif/Smart-Leads-Agent-for-Hoardings)
-- **Deployment**: Ready for deployment on **Render.com**, **Vercel**, or **Google Cloud Run**.
+[https://github.com/HarshR-gif/Smart-Leads-Agent-for-Hoardings](https://github.com/HarshR-gif/Smart-Leads-Agent-for-Hoardings)
