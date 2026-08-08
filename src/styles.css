@@ -1,0 +1,218 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Light Mode Defaults */
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.97 0.005 250);
+  --foreground: oklch(0.2 0.015 250);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.94 0.008 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.015 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.015 250);
+  --primary: oklch(0.52 0.17 250);
+  --primary-foreground: oklch(0.98 0.005 250);
+  --secondary: oklch(0.92 0.01 250);
+  --secondary-foreground: oklch(0.2 0.015 250);
+  --muted: oklch(0.94 0.008 250);
+  --muted-foreground: oklch(0.55 0.015 250);
+  --accent: oklch(0.62 0.13 195);
+  --accent-foreground: oklch(0.98 0.005 250);
+  --destructive: oklch(0.58 0.18 25);
+  --destructive-foreground: oklch(0.98 0.005 25);
+  --warning: oklch(0.68 0.15 65);
+  --warning-foreground: oklch(0.2 0.03 65);
+  --success: oklch(0.6 0.15 155);
+  --success-foreground: oklch(0.98 0.005 155);
+  --border: oklch(0.88 0.01 250);
+  --input: oklch(0.88 0.01 250);
+  --ring: oklch(0.52 0.17 250);
+  --bg-gradient-1: oklch(0.85 0.05 250 / 0.35);
+  --bg-gradient-2: oklch(0.85 0.05 88 / 0.18);
+}
+
+/* Dark Mode Overrides */
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.19 0.018 250);
+  --foreground: oklch(0.95 0.008 250);
+  --surface: oklch(0.23 0.02 250);
+  --surface-2: oklch(0.27 0.022 250);
+  --card: oklch(0.23 0.02 250);
+  --card-foreground: oklch(0.95 0.008 250);
+  --popover: oklch(0.23 0.02 250);
+  --popover-foreground: oklch(0.95 0.008 250);
+  --primary: oklch(0.8 0.17 88);
+  --primary-foreground: oklch(0.2 0.03 80);
+  --secondary: oklch(0.3 0.025 250);
+  --secondary-foreground: oklch(0.95 0.008 250);
+  --muted: oklch(0.28 0.02 250);
+  --muted-foreground: oklch(0.68 0.02 250);
+  --accent: oklch(0.72 0.14 195);
+  --accent-foreground: oklch(0.19 0.02 250);
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.97 0.01 25);
+  --warning: oklch(0.78 0.16 65);
+  --warning-foreground: oklch(0.2 0.03 65);
+  --success: oklch(0.72 0.15 155);
+  --success-foreground: oklch(0.18 0.03 155);
+  --border: oklch(0.32 0.022 250);
+  --input: oklch(0.32 0.022 250);
+  --ring: oklch(0.8 0.17 88);
+  --bg-gradient-1: oklch(0.32 0.06 250 / 0.6);
+  --bg-gradient-2: oklch(0.3 0.07 88 / 0.25);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+    transition-property: background-color, border-color, text-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    background-image:
+      radial-gradient(circle at 12% -10%, var(--bg-gradient-1), transparent 55%),
+      radial-gradient(circle at 92% 0%, var(--bg-gradient-2), transparent 45%);
+    background-attachment: fixed;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+}
+
+@utility panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+@utility grid-lines {
+  background-image:
+    linear-gradient(to right, var(--grid-line-color, oklch(0.5 0 0 / 0.04)) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line-color, oklch(0.5 0 0 / 0.04)) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.dark {
+  --grid-line-color: oklch(1 0 0 / 0.04);
+}
+
+/* Custom transitions and animations */
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Micro-animations */
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Custom scrollbar matching the theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Beautiful SVG transitions for Leaflet interactive canvas markers */
+.leaflet-interactive {
+  transition: r 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              stroke-width 0.25s ease-out,
+              fill-opacity 0.25s ease-out,
+              fill 0.25s ease-out,
+              stroke 0.25s ease-out;
+}
+
+/* Side drawer animations */
+.drawer-overlay {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.drawer-content {
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
