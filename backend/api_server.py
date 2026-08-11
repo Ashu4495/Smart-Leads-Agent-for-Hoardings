@@ -127,6 +127,9 @@ def get_all_vacancies(window_days: int = 90):
     
     vacancies = []
     
+    # Pre-normalize for faster lookup
+    df_master["Site ID Normalized"] = df_master["Site ID (PK)"].astype(str).str.strip().str.upper()
+    
     for idx, (_, row) in enumerate(sites_df.iterrows()):
         raw_sid = str(row["Site ID (PK)"]).strip()
         sid = _normalize_site_id(raw_sid)
@@ -134,7 +137,7 @@ def get_all_vacancies(window_days: int = 90):
         monthly_rate = float(row["Monthly Rate (INR)"]) if pd.notna(row["Monthly Rate (INR)"]) else 150000.0
         
         # Get additional site specs if available in master
-        matching_rows = df_master[df_master["Site ID (PK)"].str.strip().str.upper() == sid]
+        matching_rows = df_master[df_master["Site ID Normalized"] == sid]
         site_row = matching_rows.iloc[0] if not matching_rows.empty else row
         
         traffic_score = int(site_row.get("Traffic Score", 75)) if pd.notna(site_row.get("Traffic Score")) else 75
@@ -163,7 +166,7 @@ def get_all_vacancies(window_days: int = 90):
         area = _extract_area(loc)
         
         # Get ranked top 3 leads for this site
-        raw_leads = get_leads(sid)
+        raw_leads = get_leads(sid, df_master=df_master, df_leads=df_leads, customers=customers)
         formatted_leads = []
         
         for r in raw_leads:

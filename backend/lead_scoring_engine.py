@@ -85,11 +85,22 @@ def _excel_path():
     raise FileNotFoundError('Smart_Leads_Master.xlsx not found in data/ or Data/')
 
 
+_CACHE = {}
+_CACHE_MTIME = 0
+
 def load_data():
+    global _CACHE, _CACHE_MTIME
     path = _excel_path()
+    mtime = os.path.getmtime(path)
+    if _CACHE and _CACHE_MTIME == mtime:
+        return _CACHE['master'], _CACHE['leads']
+        
     xls = pd.ExcelFile(path)
     df_master = pd.read_excel(xls, 'Master_Site_Data')
     df_leads  = pd.read_excel(xls, 'Phase2_Leads') if 'Phase2_Leads' in xls.sheet_names else None
+    
+    _CACHE = {'master': df_master, 'leads': df_leads}
+    _CACHE_MTIME = mtime
     return df_master, df_leads
 
 
@@ -430,14 +441,16 @@ def _enrich_phase2_row(row, cust: dict, site_rate: float, site_loc: str, site_id
 # ---------------------------------------------------------------------------
 # 10.  PUBLIC API
 # ---------------------------------------------------------------------------
-def get_leads(raw_site_id: str) -> list:
+def get_leads(raw_site_id: str, df_master=None, df_leads=None, customers=None) -> list:
     """
     Return top-3 best-fit customers for a given site.
     Each item: {customer_id, name, score, reasons}
     """
-    df_master, df_leads = load_data()
+    if df_master is None:
+        df_master, df_leads = load_data()
     # Pass df_leads so Phase2-only customers get seeded into profiles
-    customers = _build_customer_profiles(df_master, df_leads)
+    if customers is None:
+        customers = _build_customer_profiles(df_master, df_leads)
 
     site_id   = _normalize_site_id(raw_site_id)
     site_info = get_site_details(site_id, df_master)

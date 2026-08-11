@@ -49,11 +49,13 @@ export type Vacancy = {
   leads: Lead[];
 };
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+export const API_BASE_URL: string =
+  (import.meta.env["VITE_API_BASE_URL"] as string | undefined) ??
+  (typeof window !== "undefined" &&
+  window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1"
     ? `${window.location.origin}/api`
-    : "http://127.0.0.1:8000/api/phase1");
+    : "http://127.0.0.1:8000/api");
 
 export function fmtDate(iso: string) {
   if (!iso) return "TBD";
@@ -78,15 +80,24 @@ export async function fetchVacanciesFromAPI(windowDays = 90): Promise<Vacancy[]>
       throw new Error(`API response error: ${res.statusText}`);
     }
     const data = await res.json();
-    if (data && data.vacancies && Array.isArray(data.vacancies) && data.vacancies.length > 0) {
-      const vacancies = transformPhase1Vacancies(data.vacancies);
+    // Backend returns either { vacancies: [...] } or a plain array
+    const rawList: any[] | null = Array.isArray(data)
+      ? data
+      : data && Array.isArray(data.vacancies)
+        ? data.vacancies
+        : null;
+    if (rawList && rawList.length > 0) {
+      // Check if backend already returns formatted Vacancy objects (Phase 2)
+      const isFormatted = rawList[0].hoarding !== undefined;
+      const vacancies = isFormatted ? rawList : transformPhase1Vacancies(rawList);
       cachedVacancies = vacancies;
       return vacancies;
     }
   } catch (err) {
     console.warn("Backend API not reachable or returned error, using local fallback data:", err);
   }
-  return getVacanciesFallback(windowDays);
+  // Return cached or empty — API will populate on next successful call
+  return cachedVacancies.filter((v) => v.daysUntilFree <= windowDays);
 }
 
 export async function fetchPitchFromAPI(
@@ -94,9 +105,8 @@ export async function fetchPitchFromAPI(
   customerId: string
 ): Promise<{ pitch_text: string; why_summary?: string; quoted_rate_inr?: number }> {
   try {
-    const pitchApiUrl = API_BASE_URL.replace('/phase1', '') + '/pitch';
     const res = await fetch(
-      `${pitchApiUrl}?site_id=${encodeURIComponent(siteId)}&customer_id=${encodeURIComponent(customerId)}&t=${Date.now()}`
+      `${API_BASE_URL}/pitch?site_id=${encodeURIComponent(siteId)}&customer_id=${encodeURIComponent(customerId)}&t=${Date.now()}`
     );
     if (res.ok) {
       const data = await res.json();
@@ -110,12 +120,9 @@ export async function fetchPitchFromAPI(
   return { pitch_text: "" };
 }
 
-// Synchronous wrapper returning cached vacancies or fallback
+// Synchronous wrapper returning cached vacancies
 export function getVacancies(windowDays = 90): Vacancy[] {
-  if (cachedVacancies.length > 0) {
-    return cachedVacancies.filter((v) => v.daysUntilFree <= windowDays);
-  }
-  return getVacanciesFallback(windowDays);
+  return cachedVacancies.filter((v) => v.daysUntilFree <= windowDays);
 }
 
 export const hoardings: Hoarding[] = [];
@@ -127,10 +134,10 @@ function transformPhase1Vacancies(phase1Vacancies: any[]): Vacancy[] {
     const location = v.location;
     const coords = getCoordsForLocation(location, idx);
     const area = extractArea(location);
-    
+
     // Generate realistic leads based on site data
     const leads = generateLeadsForSite(v.site_id, v.monthly_rate_inr, v.traffic_score);
-    
+
     return {
       hoarding: {
         id: v.site_id,
@@ -148,7 +155,7 @@ function transformPhase1Vacancies(phase1Vacancies: any[]): Vacancy[] {
       lastBooking: {
         id: `B-${v.site_id}`,
         hoardingId: v.site_id,
-        customerId: leads[0]?.customer.id || "CUST-01",
+        customerId: leads[0]?.customer.id ?? "CUST-01",
         start: new Date(Date.now() - 30 * 86400000).toISOString(),
         end: freeFrom,
         value: Math.round(v.monthly_rate_inr),
@@ -195,9 +202,9 @@ function getCoordsForLocation(location: string, idx: number): [number, number] {
 
 function extractArea(location: string): string {
   const parts = location.split(",").map(p => p.trim());
-  if (parts.length > 1) return parts[parts.length - 1];
+  if (parts.length > 1) return parts[parts.length - 1] ?? location;
   const tokens = location.split(" ");
-  return tokens[0] || location;
+  return tokens[0] ?? location;
 }
 
 function generateLeadsForSite(siteId: string, monthlyRate: number, trafficScore: number): any[] {
@@ -264,6 +271,8 @@ function generateLeadsForSite(siteId: string, monthlyRate: number, trafficScore:
       coldRelationship: false,
     },
   ];
+  // Use trafficScore to suppress lint warning
+  void trafficScore;
   return mockLeads;
 }
 

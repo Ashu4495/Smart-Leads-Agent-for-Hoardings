@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -77,7 +78,13 @@ function Stat({
   sub: string;
 }) {
   return (
-    <div className="panel p-4.5 hover-scale cursor-default transition-all duration-300 hover:border-primary/40 hover:shadow-lg">
+    <motion.div 
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+      }}
+      className="panel p-4.5 hover-scale cursor-default transition-all duration-300 hover:border-primary/40 hover:shadow-lg"
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5 text-muted-foreground">
           <div className="rounded-lg bg-primary/10 p-2 text-primary border border-primary/20">
@@ -88,7 +95,7 @@ function Stat({
       </div>
       <div className="mt-3.5 font-mono text-3xl font-bold tabular-nums tracking-tight">{value}</div>
       <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -108,7 +115,14 @@ function LeadCard({
   hasNotes: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-border/80 bg-surface/80 backdrop-blur-md p-4.5 hover-scale hover:shadow-2xl hover:border-primary/50 transition-all duration-300">
+    <motion.div 
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="rounded-xl border border-border/80 bg-surface/80 backdrop-blur-md p-4.5 hover-scale hover:shadow-2xl hover:border-primary/50 transition-all duration-300"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -193,7 +207,7 @@ function LeadCard({
           </span>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -247,9 +261,21 @@ function LeadDrawer({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-background/70 backdrop-blur-sm drawer-overlay">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex justify-end bg-background/70 backdrop-blur-sm"
+    >
       <button aria-label="Close drawer" className="flex-1 cursor-default" onClick={onClose} />
-      <aside className="panel flex h-full w-full max-w-xl flex-col overflow-hidden rounded-none border-l drawer-content">
+      <motion.aside 
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className="panel flex h-full w-full max-w-xl flex-col overflow-hidden rounded-none border-l"
+      >
         <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -442,8 +468,8 @@ function LeadDrawer({
             )}
           </section>
         </div>
-      </aside>
-    </div>
+      </motion.aside>
+    </motion.div>
   );
 }
 
@@ -571,7 +597,18 @@ function Cockpit() {
       </header>
 
       <div className="mx-auto max-w-7xl px-5 py-6">
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 slide-up">
+        <motion.section 
+          initial="hidden" 
+          animate="show" 
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1 }
+            }
+          }}
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+        >
           <Stat
             icon={CalendarClock}
             label="Vacancies"
@@ -596,9 +633,9 @@ function Cockpit() {
             value={String(vacancies.length * 3)}
             sub="top-3 customers per vacant site"
           />
-        </section>
+        </motion.section>
 
-        <section className="mt-6 grid gap-5 lg:grid-cols-[380px_1fr] fade-in">
+        <section className="mt-6 grid gap-5 lg:grid-cols-[380px_1fr]">
           <div className="panel grid-lines overflow-hidden">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -694,7 +731,8 @@ function Cockpit() {
                   </Suspense>
                 </ClientOnly>
 
-                <div className="grid gap-4 xl:grid-cols-3">
+                <motion.div layout className="grid gap-4 xl:grid-cols-3">
+                  <AnimatePresence mode="popLayout">
                   {selected.leads.map((lead, i) => {
                     const rec = store.getRecord(leadKey(selected.hoarding.id, lead.customer.id));
                     return (
@@ -709,7 +747,8 @@ function Cockpit() {
                       />
                     );
                   })}
-                </div>
+                  </AnimatePresence>
+                </motion.div>
               </>
             ) : (
               <div className="panel p-8 text-sm text-muted-foreground">
@@ -720,14 +759,16 @@ function Cockpit() {
         </section>
       </div>
 
-      {selected && openLead && (
-        <LeadDrawer
-          vacancy={selected}
-          lead={openLead}
-          store={store}
-          onClose={() => setOpenLeadId(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selected && openLead && (
+          <LeadDrawer
+            vacancy={selected}
+            lead={openLead}
+            store={store}
+            onClose={() => setOpenLeadId(null)}
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 }

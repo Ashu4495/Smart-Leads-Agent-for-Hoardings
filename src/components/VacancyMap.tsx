@@ -43,12 +43,15 @@ export default function VacancyMap({
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
-    // Create Leaflet Map centered at Pune
     const map = L.map(mapContainer.current, {
       center: [18.55, 73.87],
       zoom: 11,
       zoomControl: false, // Turn off default zoom control to place it customly later or manage natively
       attributionControl: false,
+      zoomAnimation: true,
+      markerZoomAnimation: true,
+      fadeAnimation: true,
+      wheelPxPerZoomLevel: 100, // Makes scroll wheel zooming smoother
     });
 
     // Add zoom control to top-left
@@ -153,11 +156,13 @@ export default function VacancyMap({
     if (v) {
       const marker = markersRef.current[v.hoarding.id];
       if (marker) {
-        map.panTo([v.hoarding.lat, v.hoarding.lng], { animate: true, duration: 0.6 });
-        if (map.getZoom() < 13) {
-          map.setZoom(13, { animate: true });
-        }
-        marker.openPopup();
+        map.flyTo([v.hoarding.lat, v.hoarding.lng], 16, { 
+          animate: true, 
+          duration: 1.5,
+          easeLinearity: 0.25 
+        });
+        // Delay popup slightly for a smoother landing effect
+        setTimeout(() => marker.openPopup(), 500);
       }
     }
   }, [selectedId, vacancies]);
