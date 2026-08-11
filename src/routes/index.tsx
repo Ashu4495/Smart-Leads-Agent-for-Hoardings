@@ -266,7 +266,7 @@ function LeadDrawer({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex justify-end bg-background/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[1000] flex justify-end bg-background/70 backdrop-blur-sm"
     >
       <button aria-label="Close drawer" className="flex-1 cursor-default" onClick={onClose} />
       <motion.aside 
