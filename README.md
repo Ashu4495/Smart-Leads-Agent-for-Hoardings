@@ -5,6 +5,8 @@
 **An AI-powered sales intelligence platform for Out-of-Home (OOH) media.**  
 *Detect upcoming billboard vacancies, rank the best-fit advertisers using a custom scoring algorithm, and generate personalized, highly-converting pitch emails in seconds.*
 
+🔗 **[Live Demo](https://smart-leads-agent-for-hoardings.onrender.com)**
+
 [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -159,6 +161,8 @@ npm run dev
 
 The project is configured for a **single-service full-stack deployment** on [Render](https://render.com) using `render.yaml`. 
 The build process seamlessly handles the React Vite build and FastAPI mounting, allowing both to be served on a single domain.
+
+**Live Deployment:** [https://smart-leads-agent-for-hoardings.onrender.com](https://smart-leads-agent-for-hoardings.onrender.com)
 
 ---
 
