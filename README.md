@@ -145,22 +145,8 @@ npm run dev
 ```
 *React dev server will start at `http://localhost:3000`. It will automatically proxy API requests to the backend.*
 
----
 
-## 📡 API Reference
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/health` | `GET` | Server health check & active site count |
-| `/api/vacancies` | `GET` | Returns all vacant sites with pre-scored leads (`?window_days=90`) |
-| `/api/pitch` | `GET` | Generates the AI pitch (`?site_id=HRD-100&customer_id=CUST-48`) |
-
----
-
-## 🚀 Deployment
-
-The project is configured for a **single-service full-stack deployment** on [Render](https://render.com) using `render.yaml`. 
-The build process seamlessly handles the React Vite build and FastAPI mounting, allowing both to be served on a single domain.
 
 **Live Deployment:** [https://smart-leads-agent-for-hoardings.onrender.com](https://smart-leads-agent-for-hoardings.onrender.com)
 
